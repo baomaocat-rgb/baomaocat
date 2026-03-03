@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<!-- saved from url=(0292)file:///Users/baomao/Desktop/%E6%B8%B8%E6%88%8FAI%E5%89%A7%E6%9C%AC%E5%88%9B%E4%BD%9C%E5%B7%A5%E5%85%B7/%E5%89%A7%E6%9C%ACAI%E5%88%9B%E4%BD%9C%E5%B7%A5%E5%85%B7%20%EF%BC%88%E6%B0%9B%E5%9B%B4npc&%E5%89%A7%E6%9C%AC%E5%88%9B%E4%BD%9C%EF%BC%89%E6%9C%80%E7%BB%88%E7%89%88%E6%9C%AC_files/index.html -->
-<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 创作工具 v75.0 - UI精修完整版</title>
-    <script src="./AI 创作工具 v75.0 - UI精修完整版_files/saved_resource"></script>
-    <script src="./AI 创作工具 v75.0 - UI精修完整版_files/lucide@latest"></script>
-    <link href="./AI 创作工具 v75.0 - UI精修完整版_files/css2" rel="stylesheet">
+    <title>AI 创作工具 v76.0 - 包含首页入口的完整版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -49,7 +49,7 @@
         .prompt-input:focus { border-color: #10B981; background-color: #FFFFFF; }
         .output-area-wrapper { padding: 0 20px 20px 20px; background: #FFFFFF; }
         
-        /* AI生成方案区域（完全一比一还原） */
+        /* AI生成方案区域 */
         .variant-wrapper { border: 1px solid #10B981; border-radius: 8px; padding: 20px; background: #FFFFFF; margin-top: 12px; }
         .variant-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; }
         .variant-card { background: #F4FBF7; border: 1px solid #E5E7EB; border-radius: 8px; padding: 16px; position: relative; transition: all 0.2s; display: flex; flex-direction: column; height: 100%; }
@@ -58,9 +58,9 @@
         .variant-btn { background: #10B981; color: white; padding: 8px 0; width: 100%; text-align: center; border-radius: 6px; font-size: 13px; cursor: pointer; border: none; font-weight: 500; transition: background 0.2s; margin-top: auto; }
         .variant-btn:hover { background: #059669; }
 
-        /* 新增：手动输入占位框样式（与AI生成方案的绿色外框样式一致） */
+        /* 手动输入占位框样式 */
         .manual-input-wrapper { border: 1px solid #10B981; border-radius: 8px; padding: 20px; background: #FFFFFF; margin-top: 12px; }
-        .script-editor-box { width: 100%; outline: none; line-height: 1.8; color: #374151; font-size: 13px; min-height: 120px; border: 1px solid transparent; background: transparent; transition: all 0.2s; text-align: left; white-space: pre-wrap; }
+        .script-editor-box { width: 100%; outline: none; line-height: 1.8; color: #374151; font-size: 13px; min-height: 120px; border: 1px solid transparent; background: transparent; transition: all 0.2s; text-align: center; white-space: pre-wrap; }
         .script-editor-box:empty:before { content: attr(placeholder); color: #9CA3AF; }
         .script-editor-box:focus { border-color: transparent; }
         
@@ -95,10 +95,8 @@
         .rewrite-modal { position: absolute; background: white; border: 1px solid #E5E7EB; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-radius: 8px; z-index: 1001; width: 300px; padding: 12px; display: none; }
         .rewrite-input { width: 100%; border: 1px solid #E5E7EB; border-radius: 6px; padding: 8px; font-size: 13px; margin-bottom: 8px; outline: none; }
         .rewrite-input:focus { border-color: #10B981; }
-        .long-script-prompt-layout { display: flex; flex-direction: column; gap: 8px; }
-        .ls-outline { color: #6B7280; font-size: 13px; border-bottom: 1px solid #F3F4F6; padding-bottom: 8px; margin-bottom: 4px; }
         
-        /* Table Styles (Excel-like) */
+        /* Table Styles */
         .table-view-container { width: 100%; border-collapse: collapse; font-size: 13px; border: 1px solid #E5E7EB; }
         .table-view-container th { background: #FAFAFA; border-bottom: 1px solid #E5E7EB; border-right: 1px solid #E5E7EB; padding: 12px; text-align: left; font-weight: bold; color: #374151; position: sticky; top: 0; z-index: 10; }
         .table-view-container td { border-bottom: 1px solid #E5E7EB; border-right: 1px solid #E5E7EB; padding: 12px; vertical-align: middle; color: #4B5563; background: white; }
@@ -115,169 +113,238 @@
         .ai-content { flex: 1; overflow-y: auto; padding: 20px; }
         .ai-footer { padding: 16px; border-top: 1px solid #F3F4F6; background: #FAFAFA; }
         
-        /* Layout Transition */
         #main-view-container { transition: margin-right 0.3s ease-in-out; }
         .mr-panel { margin-right: 320px; }
         
-        /* Toast提示样式 */
         .toast {
             position: fixed; top: 20px; right: 20px; background: #1F2937; color: white; padding: 10px 20px;
             border-radius: 6px; font-size: 13px; z-index: 10000; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         .toast.show { opacity: 1; }
+
+        /* 首页特定样式 */
+        .home-gradient {
+            background: linear-gradient(180deg, #F0FDF4 0%, #FAFAFA 100%);
+        }
+        .card-recent:hover { border-color: #10B981; box-shadow: 0 4px 12px rgba(16,185,129,0.05); }
     </style>
-<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:-apple-system, BlinkMacSystemFont, PingFang SC, Segoe UI, sans-serif;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.absolute{position:absolute}.relative{position:relative}.bottom-1\.5{bottom:0.375rem}.right-1\.5{right:0.375rem}.right-2\.5{right:0.625rem}.top-1\.5{top:0.375rem}.top-1\/2{top:50%}.z-10{z-index:10}.z-20{z-index:20}.z-30{z-index:30}.mx-1{margin-left:0.25rem;margin-right:0.25rem}.mx-auto{margin-left:auto;margin-right:auto}.mb-2{margin-bottom:0.5rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.ml-1{margin-left:0.25rem}.ml-auto{margin-left:auto}.mr-1{margin-right:0.25rem}.mt-1{margin-top:0.25rem}.mt-4{margin-top:1rem}.mt-8{margin-top:2rem}.mb-2\.5{margin-bottom:0.625rem}.mb-4{margin-bottom:1rem}.mb-8{margin-bottom:2rem}.block{display:block}.inline-block{display:inline-block}.inline{display:inline}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-12{height:3rem}.h-14{height:3.5rem}.h-3{height:0.75rem}.h-3\.5{height:0.875rem}.h-4{height:1rem}.h-5{height:1.25rem}.h-6{height:1.5rem}.h-8{height:2rem}.h-full{height:100%}.h-screen{height:100vh}.min-h-\[500px\]{min-height:500px}.w-12{width:3rem}.w-24{width:6rem}.w-3{width:0.75rem}.w-3\.5{width:0.875rem}.w-4{width:1rem}.w-48{width:12rem}.w-5{width:1.25rem}.w-6{width:1.5rem}.w-64{width:16rem}.w-8{width:2rem}.w-\[1px\]{width:1px}.w-full{width:100%}.w-2\/3{width:66.666667%}.min-w-\[160px\]{min-width:160px}.max-w-5xl{max-width:64rem}.max-w-7xl{max-width:80rem}.max-w-\[1100px\]{max-width:1100px}.flex-1{flex:1 1 0%}.flex-shrink-0{flex-shrink:0}.-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.appearance-none{-webkit-appearance:none;appearance:none}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-start{align-items:flex-start}.items-center{align-items:center}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1{gap:0.25rem}.gap-1\.5{gap:0.375rem}.gap-2{gap:0.5rem}.gap-3{gap:0.75rem}.gap-4{gap:1rem}.space-y-5 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(1.25rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(1.25rem * var(--tw-space-y-reverse))}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.rounded{border-radius:0.25rem}.rounded-full{border-radius:9999px}.rounded-lg{border-radius:0.5rem}.rounded-md{border-radius:0.375rem}.rounded-xl{border-radius:0.75rem}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-r{border-right-width:1px}.border-border{--tw-border-opacity:1;border-color:rgb(229 231 235 / var(--tw-border-opacity, 1))}.border-gray-100{--tw-border-opacity:1;border-color:rgb(243 244 246 / var(--tw-border-opacity, 1))}.border-gray-200{--tw-border-opacity:1;border-color:rgb(229 231 235 / var(--tw-border-opacity, 1))}.border-gray-200\/60{border-color:rgb(229 231 235 / 0.6)}.border-green-100{--tw-border-opacity:1;border-color:rgb(220 252 231 / var(--tw-border-opacity, 1))}.border-transparent{border-color:transparent}.bg-\[\#1E293B\]{--tw-bg-opacity:1;background-color:rgb(30 41 59 / var(--tw-bg-opacity, 1))}.bg-\[\#1F2937\]{--tw-bg-opacity:1;background-color:rgb(31 41 55 / var(--tw-bg-opacity, 1))}.bg-\[\#FAFAFA\]{--tw-bg-opacity:1;background-color:rgb(250 250 250 / var(--tw-bg-opacity, 1))}.bg-bg{--tw-bg-opacity:1;background-color:rgb(250 250 250 / var(--tw-bg-opacity, 1))}.bg-gray-100{--tw-bg-opacity:1;background-color:rgb(243 244 246 / var(--tw-bg-opacity, 1))}.bg-gray-100\/80{background-color:rgb(243 244 246 / 0.8)}.bg-gray-200{--tw-bg-opacity:1;background-color:rgb(229 231 235 / var(--tw-bg-opacity, 1))}.bg-gray-300{--tw-bg-opacity:1;background-color:rgb(209 213 219 / var(--tw-bg-opacity, 1))}.bg-green-50\/50{background-color:rgb(240 253 244 / 0.5)}.bg-green-600{--tw-bg-opacity:1;background-color:rgb(22 163 74 / var(--tw-bg-opacity, 1))}.bg-indigo-50{--tw-bg-opacity:1;background-color:rgb(238 242 255 / var(--tw-bg-opacity, 1))}.bg-orange-50{--tw-bg-opacity:1;background-color:rgb(255 247 237 / var(--tw-bg-opacity, 1))}.bg-primary{--tw-bg-opacity:1;background-color:rgb(16 185 129 / var(--tw-bg-opacity, 1))}.bg-red-600{--tw-bg-opacity:1;background-color:rgb(220 38 38 / var(--tw-bg-opacity, 1))}.bg-sidebar{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-transparent{background-color:transparent}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.p-0\.5{padding:0.125rem}.p-1{padding:0.25rem}.p-1\.5{padding:0.375rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.p-8{padding:2rem}.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}.px-3{padding-left:0.75rem;padding-right:0.75rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2{padding-top:0.5rem;padding-bottom:0.5rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.py-1{padding-top:0.25rem;padding-bottom:0.25rem}.pb-20{padding-bottom:5rem}.pb-4{padding-bottom:1rem}.pb-8{padding-bottom:2rem}.pl-3{padding-left:0.75rem}.pr-10{padding-right:2.5rem}.pr-8{padding-right:2rem}.pt-2{padding-top:0.5rem}.pl-1{padding-left:0.25rem}.text-center{text-align:center}.font-sans{font-family:-apple-system, BlinkMacSystemFont, PingFang SC, Segoe UI, sans-serif}.text-\[11px\]{font-size:11px}.text-\[12px\]{font-size:12px}.text-\[13px\]{font-size:13px}.text-\[15px\]{font-size:15px}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:0.75rem;line-height:1rem}.text-\[10px\]{font-size:10px}.font-bold{font-weight:700}.font-medium{font-weight:500}.leading-relaxed{line-height:1.625}.text-cyan-300{--tw-text-opacity:1;color:rgb(103 232 249 / var(--tw-text-opacity, 1))}.text-gray-400{--tw-text-opacity:1;color:rgb(156 163 175 / var(--tw-text-opacity, 1))}.text-gray-500{--tw-text-opacity:1;color:rgb(107 114 128 / var(--tw-text-opacity, 1))}.text-gray-600{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.text-gray-700{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.text-gray-800{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-green-600{--tw-text-opacity:1;color:rgb(22 163 74 / var(--tw-text-opacity, 1))}.text-indigo-600{--tw-text-opacity:1;color:rgb(79 70 229 / var(--tw-text-opacity, 1))}.text-orange-500{--tw-text-opacity:1;color:rgb(249 115 22 / var(--tw-text-opacity, 1))}.text-text{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-60{opacity:0.6}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-subtle{--tw-shadow:0 1px 3px rgba(0,0,0,0.03);--tw-shadow-colored:0 1px 3px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.outline-none{outline:2px solid transparent;outline-offset:2px}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.focus-within\:border-primary:focus-within{--tw-border-opacity:1;border-color:rgb(16 185 129 / var(--tw-border-opacity, 1))}.hover\:border-green-200:hover{--tw-border-opacity:1;border-color:rgb(187 247 208 / var(--tw-border-opacity, 1))}.hover\:bg-gray-100:hover{--tw-bg-opacity:1;background-color:rgb(243 244 246 / var(--tw-bg-opacity, 1))}.hover\:bg-gray-50:hover{--tw-bg-opacity:1;background-color:rgb(249 250 251 / var(--tw-bg-opacity, 1))}.hover\:bg-gray-800:hover{--tw-bg-opacity:1;background-color:rgb(31 41 55 / var(--tw-bg-opacity, 1))}.hover\:bg-green-50:hover{--tw-bg-opacity:1;background-color:rgb(240 253 244 / var(--tw-bg-opacity, 1))}.hover\:bg-green-700:hover{--tw-bg-opacity:1;background-color:rgb(21 128 61 / var(--tw-bg-opacity, 1))}.hover\:bg-primary-hover:hover{--tw-bg-opacity:1;background-color:rgb(5 150 105 / var(--tw-bg-opacity, 1))}.hover\:bg-red-700:hover{--tw-bg-opacity:1;background-color:rgb(185 28 28 / var(--tw-bg-opacity, 1))}.hover\:text-gray-600:hover{--tw-text-opacity:1;color:rgb(75 85 99 / var(--tw-text-opacity, 1))}.hover\:text-gray-700:hover{--tw-text-opacity:1;color:rgb(55 65 81 / var(--tw-text-opacity, 1))}.hover\:text-gray-800:hover{--tw-text-opacity:1;color:rgb(31 41 55 / var(--tw-text-opacity, 1))}.hover\:text-primary:hover{--tw-text-opacity:1;color:rgb(16 185 129 / var(--tw-text-opacity, 1))}.focus\:border-indigo-400:focus{--tw-border-opacity:1;border-color:rgb(129 140 248 / var(--tw-border-opacity, 1))}.focus\:border-primary:focus{--tw-border-opacity:1;border-color:rgb(16 185 129 / var(--tw-border-opacity, 1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}</style></head>
+</head>
 <body class="bg-bg text-text h-screen w-full flex overflow-hidden antialiased font-sans" onclick="handleGlobalClick(event)" onmouseup="handleTextSelection(event)">
-    <aside class="w-64 bg-sidebar border-r border-border flex flex-col flex-shrink-0 z-20">
-        <div class="h-14 flex items-center px-4 border-b border-border gap-2 bg-white">
-            <div class="w-8 h-8 rounded-full bg-gray-100 overflow-hidden border border-gray-200"><img src="./AI 创作工具 v75.0 - UI精修完整版_files/avatar.svg" alt="User"></div>
-            <span class="font-bold text-xs text-gray-700">wenjing03</span>
-            <div class="ml-auto p-1.5 hover:bg-gray-100 rounded text-gray-400 cursor-pointer"><i data-lucide="layout-sidebar" class="w-4 h-4"></i></div>
-        </div>
-        <div class="px-5 py-4 border-b border-gray-100 bg-white">
-            <h2 id="sidebar-title" class="text-[13px] font-bold text-gray-800 flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="book-open" aria-hidden="true" class="lucide lucide-book-open w-4 h-4 text-gray-400"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg> 台本列表</h2>
-        </div>
-        <div id="sidebar-list" class="flex-1 overflow-y-auto custom-scrollbar pb-4 bg-sidebar pt-2"><div class="sidebar-item active" id="sidebar-link-block-1772510910768-fvvcj">XINQI_打电话_默认_0001</div></div>
-    </aside>
-    <div class="flex-1 flex flex-col h-full overflow-hidden relative bg-bg">
-        <header class="h-14 bg-white border-b border-border flex items-center justify-between px-6 flex-shrink-0 z-10">
-            <div class="flex items-center gap-4">
-                <button class="text-gray-500 hover:text-gray-800 flex items-center gap-1 text-[13px] font-medium"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-left" aria-hidden="true" class="lucide lucide-chevron-left w-4 h-4"><path d="m15 18-6-6 6-6"></path></svg> 返回</button>
-                <div class="flex items-center gap-1 text-gray-400">
-                    <button class="p-1 hover:bg-gray-100 rounded transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="undo" aria-hidden="true" class="lucide lucide-undo w-4 h-4"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path></svg></button>
-                    <button class="p-1 hover:bg-gray-100 rounded transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="redo" aria-hidden="true" class="lucide lucide-redo w-4 h-4"><path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path></svg></button>
-                </div>
-                <div class="h-4 w-[1px] bg-gray-200 mx-1"></div>
-                <div class="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-md text-xs text-gray-700 bg-white cursor-pointer hover:bg-gray-50"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="box" aria-hidden="true" class="lucide lucide-box w-3.5 h-3.5 text-gray-400"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path><path d="m3.3 7 8.7 5 8.7-5"></path><path d="M12 22V12"></path></svg> GPT-4o <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down w-3 h-3 text-gray-400 ml-1"><path d="m6 9 6 6 6-6"></path></svg></div>
-                <button class="flex items-center gap-1.5 px-3 py-1.5 border border-green-100 rounded-md text-xs text-green-600 bg-green-50/50 hover:bg-green-50 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="cloud" aria-hidden="true" class="lucide lucide-cloud w-3.5 h-3.5"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path></svg> 备份&amp;恢复</button>
-                <button class="px-5 py-1.5 bg-[#1F2937] text-white rounded-md text-xs hover:bg-gray-800 transition-all font-medium">保存</button>
-                <span class="text-[11px] text-gray-400">已保存</span>
+
+    <div id="page-home" class="flex flex-col w-full h-full overflow-y-auto bg-[#FAFAFA]">
+        <nav class="h-14 border-b border-gray-100 bg-white flex items-center justify-between px-8 flex-shrink-0 z-10 sticky top-0 shadow-sm">
+            <div class="flex items-center gap-2 font-bold text-gray-800 text-[15px]">
+               <i data-lucide="leaf" class="text-primary w-5 h-5"></i> AI创作工具
             </div>
-            <div class="flex items-center gap-4">
-                <button id="btn-global-ai" onclick="globalGenerate()" class="flex items-center gap-1.5 px-5 py-1.5 bg-[#1E293B] text-white rounded-full text-xs font-bold hover:bg-gray-800 shadow-sm transition-all transform active:scale-95">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sparkles" aria-hidden="true" class="lucide lucide-sparkles w-3.5 h-3.5 text-cyan-300"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg> AI 创作
-                </button>
-                <div id="view-mode-group" class="flex bg-gray-100/80 p-0.5 rounded-lg text-[12px] font-medium text-gray-500 border border-gray-200/60">
-                    <button onclick="switchViewMode(&#39;editor&#39;)" id="btn-mode-editor" class="px-4 py-1.5 bg-white rounded-md shadow-subtle text-gray-800 transition-all">编辑模式</button>
-                    <button onclick="switchViewMode(&#39;final&#39;)" id="btn-mode-final" class="px-4 py-1.5 hover:text-gray-700 transition-all">成稿模式</button>
-                </div>
-                <button id="ai-assistant-toggle-btn" onclick="toggleAssistant()" class="p-1.5 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors" title="AI 灵感助手">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="panel-right-open" aria-hidden="true" class="lucide lucide-panel-right-open w-4 h-4"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M15 3v18"></path><path d="m10 15-3-3 3-3"></path></svg>
-                </button>
+            <div class="flex items-center gap-10 h-full text-[14px]">
+                <div class="h-full flex items-center border-b-[3px] border-primary text-gray-900 font-bold cursor-pointer pt-[3px]">我要创作</div>
+                <div class="h-full flex items-center text-gray-500 hover:text-gray-900 cursor-pointer pt-[3px] transition-colors">我的作品</div>
+                <div class="h-full flex items-center text-gray-500 hover:text-gray-900 cursor-pointer pt-[3px] transition-colors">游戏词条</div>
             </div>
-        </header>
-        <div id="main-view-container" class="flex-1 flex flex-col overflow-hidden h-full">
-            
-            <div class="fixed-header-section flex items-center gap-4 shadow-subtle z-30">
-                <div class="flex items-center gap-3">
-                    <h2 class="text-[15px] font-bold text-gray-800">台本创作模版</h2>
-                    <div class="h-4 w-[1px] bg-gray-300"></div>
-                    <div class="relative group inline-block">
-                        <select id="global-template-selector" onfocus="this.dataset.prev = this.value" onchange="checkAndSwitchTemplate(this)" class="appearance-none text-[13px] border border-gray-200 rounded-md px-4 py-1.5 pr-8 bg-white text-gray-600 outline-none focus:border-primary cursor-pointer hover:bg-gray-50 transition-colors min-w-[160px]">
-                            <option value="double_phone">双人打电话</option>
-                            <option value="double_static">双人静态语音表演</option>
-                            <option value="single_random">单人随机语句</option>
-                            <option value="single_static">单人静态语音表演</option>
-                            <option value="multi_static">多人静态语音表演</option>
-                            <option value="trigger">定点触发响应</option>
-                            <option value="long_script">长剧本创作</option>
-                            <option value="custom">自定义创作</option>
-                        </select>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"><path d="m6 9 6 6 6-6"></path></svg>
-                    </div>
+            <div class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded-md transition-colors">
+                <div class="w-7 h-7 rounded-full bg-gray-100 overflow-hidden border border-gray-200"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User"></div>
+                <span class="font-bold text-xs text-gray-700">wenjing03</span>
+            </div>
+        </nav>
+
+        <div class="relative w-full flex flex-col items-center pt-20 pb-16 home-gradient">
+            <div class="w-14 h-14 bg-gradient-to-br from-green-50 to-green-100 rounded-full flex items-center justify-center mb-5 shadow-sm border border-white">
+                <i data-lucide="sparkles" class="text-primary w-7 h-7"></i>
+            </div>
+            <h1 class="text-[26px] font-bold text-gray-800 tracking-wider">在灵感绿洲 开启您的创作之旅</h1>
+        </div>
+
+        <div class="max-w-[1200px] mx-auto w-full px-8 pb-12 -mt-6">
+            <div class="grid grid-cols-4 gap-6 relative z-10">
+                <div class="relative overflow-hidden bg-gradient-to-br from-[#F5F3FF] to-[#EDE9FE] rounded-lg h-28 p-5 cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all border border-white">
+                    <div class="font-bold text-gray-800 flex items-center gap-2 text-[15px] relative z-10">剧情创作 <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-gray-400"></i></div>
+                    <i data-lucide="book-open" class="absolute -right-3 -bottom-3 w-20 h-20 text-[#DDD6FE] opacity-60"></i>
                 </div>
-                <div class="ml-auto flex gap-3" id="header-actions">
-                    <button onclick="openSettings()" id="btn-settings-global" class="flex items-center gap-1.5 px-4 py-1.5 border border-gray-200 rounded-md text-[13px] text-gray-600 bg-white hover:text-primary hover:border-green-200 transition-colors shadow-sm font-medium"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" aria-hidden="true" class="lucide lucide-settings w-3.5 h-3.5"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg> 台本句数</button>
-                    <button onclick="addNewBlock()" class="flex items-center gap-1.5 px-4 py-1.5 border border-gray-200 rounded-md text-[13px] text-gray-600 bg-white hover:text-primary hover:border-green-200 transition-colors shadow-sm font-medium"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus" aria-hidden="true" class="lucide lucide-plus w-3.5 h-3.5"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg> 添加段落</button>
+                <div class="relative overflow-hidden bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] rounded-lg h-28 p-5 cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all border border-white">
+                    <div class="font-bold text-gray-800 flex items-center gap-2 text-[15px] relative z-10">主角创作 <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-gray-400"></i></div>
+                    <i data-lucide="user-plus" class="absolute -right-3 -bottom-3 w-20 h-20 text-[#BFDBFE] opacity-60"></i>
+                </div>
+                <div class="relative overflow-hidden bg-gradient-to-br from-[#FFF7ED] to-[#FFEDD5] rounded-lg h-28 p-5 cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all border border-white">
+                    <div class="font-bold text-gray-800 flex items-center gap-2 text-[15px] relative z-10">氛围NPC创作 <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-gray-400"></i></div>
+                    <i data-lucide="message-square" class="absolute -right-3 -bottom-3 w-20 h-20 text-[#FED7AA] opacity-60"></i>
+                </div>
+                <div onclick="goToEditor()" class="relative overflow-hidden bg-gradient-to-br from-[#FDF2F8] to-[#FCE7F3] rounded-lg h-28 p-5 cursor-pointer hover:-translate-y-1 hover:shadow-md transition-all border border-white ring-1 ring-pink-50">
+                    <div class="font-bold text-gray-800 flex items-center gap-2 text-[15px] relative z-10">台本创作 <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-gray-400"></i></div>
+                    <i data-lucide="clapperboard" class="absolute -right-3 -bottom-3 w-20 h-20 text-[#FBCFE8] opacity-60"></i>
                 </div>
             </div>
-            <main id="view-editor" class="flex-1 overflow-y-auto custom-scrollbar p-8 bg-[#FAFAFA]">
-                <div id="flow-canvas" class="max-w-[1100px] mx-auto pb-20 block"><div id="block-1772510910768-fvvcj-wrapper" class="mb-8">
-                <div class="flex items-center mb-4 pl-1">
-                    <input type="text" value="XINQI_打电话_默认_0001" oninput="updateSidebar(&#39;block-1772510910768-fvvcj&#39;, this.value)" class="text-[15px] font-bold text-gray-800 bg-transparent outline-none border-b border-transparent focus:border-primary w-2/3 transition-colors py-1">
-                    
-                </div>
-                <div id="block-1772510910768-fvvcj" class="editor-container" onclick="highlightSidebar(&#39;block-1772510910768-fvvcj&#39;)">
-                    <div class="editor-header">
-                        <span class="text-xs font-bold text-gray-500 flex items-center gap-1.5">台本 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down w-3.5 h-3.5 text-gray-400"><path d="m6 9 6 6 6-6"></path></svg></span>
-                        <button onclick="generateBlockAI(&#39;block-1772510910768-fvvcj&#39;)" class="bg-[#1E293B] text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-800 shadow-sm transition-all transform active:scale-95">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sparkles" aria-hidden="true" class="lucide lucide-sparkles w-4 h-4 text-cyan-300"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg>
-                        </button>
-                    </div>
-                    <div class="prompt-area">
-                        <div class="text-[13px] text-gray-400 mb-2.5 ml-1">prompt：</div>
-                        <div class="prompt-input" contenteditable="true">请生成一段在 <span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;城市&#39;, this)">城市 <span class="text-[10px] ml-1 opacity-60">∨</span></span> 的 <span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;舞台区域&#39;, this)">舞台区域 <span class="text-[10px] ml-1 opacity-60">∨</span></span> 的情节下，<span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;角色A&#39;, this)">角色A <span class="text-[10px] ml-1 opacity-60">∨</span></span> <span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;情绪色彩&#39;, this)">情绪色彩 <span class="text-[10px] ml-1 opacity-60">∨</span></span> 和 <span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;角色B&#39;, this)">角色B <span class="text-[10px] ml-1 opacity-60">∨</span></span> <span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;情绪色彩&#39;, this)">情绪色彩 <span class="text-[10px] ml-1 opacity-60">∨</span></span> 聊 <span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;对话话题&#39;, this)">对话话题 <span class="text-[10px] ml-1 opacity-60">∨</span></span> <span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;对话风格&#39;, this)">对话风格 <span class="text-[10px] ml-1 opacity-60">∨</span></span> <br> <span class="prompt-tag" contenteditable="false" onclick="showDropdown(event, &#39;几组对话&#39;, this)">几组对话 <span class="text-[10px] ml-1 opacity-60">∨</span></span> 的台本</div>
-                    </div>
-                    <div class="output-area-wrapper" id="output-area-block-1772510910768-fvvcj">
-                        
-            <div class="manual-input-wrapper" id="manual-wrapper-block-1772510910768-fvvcj">
-                <div id="output-block-1772510910768-fvvcj" class="script-editor-box text-center" contenteditable="true" placeholder="在此输入台本内容，或点击右上角 AI 图标生成..."></div>
+        </div>
+
+        <div class="max-w-[1200px] mx-auto w-full px-8 pb-20">
+            <div class="flex items-center justify-between mb-5">
+                <h3 class="font-bold text-gray-800 text-[15px]">最近创作</h3>
+                <span class="text-[13px] text-gray-500 cursor-pointer hover:text-primary transition-colors flex items-center gap-1">查看全部 <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i></span>
             </div>
-                    </div>
+            <div class="grid grid-cols-4 gap-6">
+                <div class="bg-white rounded-lg p-5 border border-gray-100 shadow-sm card-recent cursor-pointer transition-all flex flex-col h-44">
+                    <div class="inline-block px-2 py-0.5 bg-purple-50 text-purple-600 rounded text-[11px] font-medium w-max mb-3 border border-purple-100">剧情创作</div>
+                    <h4 class="font-bold text-gray-800 text-[14px] mb-2 truncate">这是剧本标题这是剧本标题</h4>
+                    <p class="text-[13px] text-gray-500 line-clamp-2 leading-relaxed mb-auto">这是立意这是立意这是立意这是立意这是立意这是立意这是立意</p>
+                    <div class="text-[11px] text-gray-400 mt-4">2025/5/20 创建</div>
                 </div>
-            </div></div>
-                <div id="pipeline-canvas" class="hidden">
-                    <div class="w-full flex justify-center pb-8">
-                        <div class="flex bg-white border border-gray-200 p-1 rounded-lg shadow-subtle">
-                            <div onclick="switchPipelineTab(&#39;story&#39;)" id="tab-story" class="pipeline-tab active">故事梗概</div>
-                            <div onclick="switchPipelineTab(&#39;outline&#39;)" id="tab-outline" class="pipeline-tab">大纲创作</div>
-                            <div onclick="switchPipelineTab(&#39;script&#39;)" id="tab-script" class="pipeline-tab">台本创作</div>
-                        </div>
-                    </div>
-                    <div id="stage-story" class="max-w-5xl mx-auto">
-                         <div class="flex justify-between items-start mb-6">
-                            <h2 class="story-header-text text-xl font-bold text-gray-800">hey，今天想写什么故事？</h2>
-                            <div class="flex gap-3"><button onclick="openDramaSettings()" class="px-4 py-2 border border-gray-200 rounded-md text-xs text-gray-600 hover:bg-gray-50 shadow-sm">剧本设定</button><button onclick="switchPipelineTab(&#39;outline&#39;)" class="px-5 py-2 bg-[#1E293B] text-white rounded-md text-xs hover:bg-gray-800 shadow-sm font-bold">下一步</button></div>
-                        </div>
-                        <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-8 min-h-[500px]">
-                            <input type="text" id="story-title" class="story-input-title" placeholder="请输入故事标题" value="雨夜的访客">
-                            <textarea id="story-body" class="story-input-body mt-4" placeholder="请输入故事梗概内容...">在一个风雨交加的夜晚...</textarea>
-                        </div>
-                    </div>
-                    <div id="stage-outline" class="hidden max-w-5xl mx-auto">
-                        <div class="flex justify-end mb-6 gap-3">
-                             <button onclick="addOutlineBlock()" class="px-4 py-2 border border-gray-200 rounded-md text-xs text-gray-600 bg-white hover:bg-gray-50 shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus" aria-hidden="true" class="lucide lucide-plus w-3.5 h-3.5 inline mr-1"><path d="M5 12h14"></path><path d="M12 5v14"></path></svg> 添加大纲</button>
-                             <button onclick="outlineToScript()" class="px-4 py-2 bg-[#1E293B] text-white rounded-md text-xs font-bold shadow-sm hover:bg-gray-800">确认大纲，去写台本</button>
-                        </div>
-                        <div id="outline-list-container"></div>
-                    </div>
-                    <div id="stage-script" class="hidden max-w-[1100px] mx-auto"><div id="long-script-container"></div></div>
+                <div class="bg-white rounded-lg p-5 border border-gray-100 shadow-sm card-recent cursor-pointer transition-all flex flex-col h-44">
+                    <div class="inline-block px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[11px] font-medium w-max mb-3 border border-blue-100">主角创作</div>
+                    <h4 class="font-bold text-gray-800 text-[14px] mb-2 truncate">这是角色卡标题</h4>
+                    <p class="text-[13px] text-gray-500 line-clamp-2 leading-relaxed mb-auto">这是角色描述这是角色描述这是角色描述</p>
+                    <div class="text-[11px] text-gray-400 mt-4">2025/5/20 创建</div>
                 </div>
-            </main>
-            <main id="view-final" class="flex-1 overflow-y-auto custom-scrollbar p-8 hidden bg-[#FAFAFA]">
-                <div class="max-w-7xl mx-auto pb-20">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-[#FAFAFA]">
-                            <div><h2 class="text-[15px] font-bold text-gray-800">成稿预览</h2><p class="text-xs text-gray-400 mt-1">仅展示已确认或已生成的台本内容</p></div>
-                            <button onclick="alert(&#39;Excel 导出成功&#39;)" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-xs font-bold shadow-sm transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="download" aria-hidden="true" class="lucide lucide-download w-3.5 h-3.5"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg> 导出 Excel</button>
-                        </div>
-                        <div class="overflow-x-auto p-6">
-                            <table class="table-view-container rounded-lg overflow-hidden" id="final-table">
-                                <thead><tr><th class="w-48">台本ID</th><th class="w-24">角色</th><th>完整台本内容</th><th class="w-64">已选的prompt模版 (Prompt设定)</th></tr></thead>
-                                <tbody id="final-table-body"></tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="bg-white rounded-lg p-5 border border-gray-100 shadow-sm card-recent cursor-pointer transition-all flex flex-col h-44">
+                    <div class="inline-block px-2 py-0.5 bg-purple-50 text-purple-600 rounded text-[11px] font-medium w-max mb-3 border border-purple-100">剧情创作</div>
+                    <h4 class="font-bold text-gray-800 text-[14px] mb-2 truncate">这是剧本标题这是剧本标题...</h4>
+                    <p class="text-[13px] text-gray-500 line-clamp-2 leading-relaxed mb-auto">这是立意这是立意这是立意这是立意这是立意...</p>
+                    <div class="text-[11px] text-gray-400 mt-4">2025/5/20 创建</div>
                 </div>
-            </main>
-        </div>
-    </div>
-    <div id="ai-assistant-panel" class="ai-assistant-panel">
-        <div class="ai-content custom-scrollbar">
-            <h3 class="font-bold text-[15px] text-gray-800 mb-6 flex items-center gap-2"><div class="w-6 h-6 rounded bg-indigo-50 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="bot" aria-hidden="true" class="lucide lucide-bot w-4 h-4 text-indigo-600"><path d="M12 8V4H8"></path><rect width="16" height="12" x="4" y="8" rx="2"></rect><path d="M2 14h2"></path><path d="M20 14h2"></path><path d="M15 13v2"></path><path d="M9 13v2"></path></svg></div> AI 灵感助手</h3>
-            <div class="text-[13px] leading-relaxed text-gray-600 p-4 bg-[#FAFAFA] border border-gray-100 rounded-lg shadow-sm">你好！我是你的灵感助手，有什么可以帮你的吗？<br><br>你可以问我关于剧情走向、角色设定或者台词优化的建议。</div>
-        </div>
-        <div class="ai-footer">
-            <div class="relative">
-                <input type="text" placeholder="输入你的问题..." class="w-full border border-gray-200 rounded-md py-2.5 pl-3 pr-10 text-[13px] outline-none focus:border-indigo-400 bg-white shadow-sm transition-colors">
-                <button class="absolute right-1.5 top-1.5 bottom-1.5 px-2.5 bg-[#1E293B] text-white rounded hover:bg-gray-800 flex items-center justify-center transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="send" aria-hidden="true" class="lucide lucide-send w-3.5 h-3.5"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg></button>
+                <div class="bg-white rounded-lg p-5 border border-gray-100 shadow-sm card-recent cursor-pointer transition-all flex flex-col h-44">
+                    <div class="inline-block px-2 py-0.5 bg-purple-50 text-purple-600 rounded text-[11px] font-medium w-max mb-3 border border-purple-100">剧情创作</div>
+                    <h4 class="font-bold text-gray-800 text-[14px] mb-2 truncate">这是剧本标题这是剧本标题</h4>
+                    <p class="text-[13px] text-gray-500 line-clamp-2 leading-relaxed mb-auto">这是立意这是立意这是立意这是立意这是立意...</p>
+                    <div class="text-[11px] text-gray-400 mt-4">2025/5/20 创建</div>
+                </div>
             </div>
         </div>
     </div>
+
+
+    <div id="page-editor" class="flex flex-1 w-full h-full hidden">
+        <aside class="w-64 bg-sidebar border-r border-border flex flex-col flex-shrink-0 z-20 shadow-sm relative">
+            <div class="h-14 flex items-center px-4 border-b border-gray-100 bg-white">
+                <div class="w-8 h-8 rounded-full bg-gray-100 overflow-hidden border border-gray-200"><img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User"></div>
+                <span class="font-bold text-xs text-gray-700 ml-2">wenjing03</span>
+                <div class="ml-auto p-1.5 hover:bg-gray-100 rounded text-gray-400 cursor-pointer"><i data-lucide="layout-sidebar" class="w-4 h-4"></i></div>
+            </div>
+            <div class="px-5 py-4 border-b border-gray-100 bg-white">
+                <h2 id="sidebar-title" class="text-[13px] font-bold text-gray-800 flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4 text-gray-400"></i> 台本列表</h2>
+            </div>
+            <div id="sidebar-list" class="flex-1 overflow-y-auto custom-scrollbar pb-4 bg-sidebar pt-2"></div>
+        </aside>
+
+        <div class="flex-1 flex flex-col h-full overflow-hidden relative bg-bg">
+            <header class="h-14 bg-white border-b border-gray-100 flex items-center justify-between px-6 flex-shrink-0 z-10 shadow-sm relative">
+                <div class="flex items-center gap-4">
+                    <button onclick="goHome()" class="text-gray-500 hover:text-gray-800 flex items-center gap-1.5 text-[13px] font-medium transition-colors"><i data-lucide="chevron-left" class="w-4 h-4"></i> 返回</button>
+                    <div class="flex items-center gap-1 text-gray-400">
+                        <button class="p-1 hover:bg-gray-100 rounded transition-colors"><i data-lucide="undo" class="w-4 h-4"></i></button>
+                        <button class="p-1 hover:bg-gray-100 rounded transition-colors"><i data-lucide="redo" class="w-4 h-4"></i></button>
+                    </div>
+                    <div class="h-4 w-[1px] bg-gray-200 mx-1"></div>
+                    <div class="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-md text-xs text-gray-700 bg-white cursor-pointer hover:bg-gray-50"><i data-lucide="box" class="w-3.5 h-3.5 text-gray-400"></i> GPT-4o <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400 ml-1"></i></div>
+                    <button class="flex items-center gap-1.5 px-3 py-1.5 border border-green-100 rounded-md text-xs text-green-600 bg-green-50/50 hover:bg-green-50 transition-colors"><i data-lucide="cloud" class="w-3.5 h-3.5"></i> 备份&恢复</button>
+                    <button class="px-5 py-1.5 bg-[#1F2937] text-white rounded-md text-xs hover:bg-gray-800 transition-all font-medium">保存</button>
+                    <span class="text-[11px] text-gray-400">已保存</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="btn-global-ai" onclick="globalGenerate()" class="flex items-center gap-1.5 px-5 py-1.5 bg-[#1E293B] text-white rounded-full text-xs font-bold hover:bg-gray-800 shadow-sm transition-all transform active:scale-95">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-300"></i> AI 创作
+                    </button>
+                    <div id="view-mode-group" class="flex bg-gray-100/80 p-0.5 rounded-lg text-[12px] font-medium text-gray-500 border border-gray-200/60">
+                        <button onclick="switchViewMode('editor')" id="btn-mode-editor" class="px-4 py-1.5 bg-white rounded-md shadow-subtle text-gray-800 transition-all">编辑模式</button>
+                        <button onclick="switchViewMode('final')" id="btn-mode-final" class="px-4 py-1.5 hover:text-gray-700 transition-all">成稿模式</button>
+                    </div>
+                    <button id="ai-assistant-toggle-btn" onclick="toggleAssistant()" class="p-1.5 text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded transition-colors" title="AI 灵感助手">
+                        <i data-lucide="panel-right-open" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div id="main-view-container" class="flex-1 flex flex-col overflow-hidden h-full">
+                <div class="fixed-header-section flex items-center gap-4 shadow-subtle z-30">
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-[15px] font-bold text-gray-800">台本创作模版</h2>
+                        <div class="h-4 w-[1px] bg-gray-300"></div>
+                        <div class="relative group inline-block">
+                            <select id="global-template-selector" onfocus="this.dataset.prev = this.value" onchange="checkAndSwitchTemplate(this)" class="appearance-none text-[13px] border border-gray-200 rounded-md px-4 py-1.5 pr-8 bg-white text-gray-600 outline-none focus:border-primary cursor-pointer hover:bg-gray-50 transition-colors min-w-[160px]">
+                                <option value="double_phone">双人打电话</option>
+                                <option value="double_static">双人静态语音表演</option>
+                                <option value="single_random">单人随机语句</option>
+                                <option value="single_static">单人静态语音表演</option>
+                                <option value="multi_static">多人静态语音表演</option>
+                                <option value="trigger">定点触发响应</option>
+                                <option value="long_script">长剧本创作</option>
+                                <option value="custom">自定义创作</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                        </div>
+                    </div>
+                    <div class="ml-auto flex gap-3" id="header-actions">
+                        <button onclick="openSettings()" id="btn-settings-global" class="flex items-center gap-1.5 px-4 py-1.5 border border-gray-200 rounded-md text-[13px] text-gray-600 bg-white hover:text-primary hover:border-green-200 transition-colors shadow-sm font-medium"><i data-lucide="settings" class="w-3.5 h-3.5"></i> 台本句数</button>
+                        <button onclick="addNewBlock()" class="flex items-center gap-1.5 px-4 py-1.5 border border-gray-200 rounded-md text-[13px] text-gray-600 bg-white hover:text-primary hover:border-green-200 transition-colors shadow-sm font-medium"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 添加段落</button>
+                    </div>
+                </div>
+
+                <main id="view-editor" class="flex-1 overflow-y-auto custom-scrollbar p-8 bg-[#FAFAFA]">
+                    <div id="flow-canvas" class="max-w-[1100px] mx-auto pb-20 block"></div>
+                    <div id="pipeline-canvas" class="hidden">
+                        <div class="w-full flex justify-center pb-8">
+                            <div class="flex bg-white border border-gray-200 p-1 rounded-lg shadow-subtle">
+                                <div onclick="switchPipelineTab('story')" id="tab-story" class="pipeline-tab active">故事梗概</div>
+                                <div onclick="switchPipelineTab('outline')" id="tab-outline" class="pipeline-tab">大纲创作</div>
+                                <div onclick="switchPipelineTab('script')" id="tab-script" class="pipeline-tab">台本创作</div>
+                            </div>
+                        </div>
+                        <div id="stage-story" class="max-w-5xl mx-auto">
+                            <div class="flex justify-between items-start mb-6">
+                                <h2 class="story-header-text text-xl font-bold text-gray-800">hey，今天想写什么故事？</h2>
+                                <div class="flex gap-3"><button onclick="openDramaSettings()" class="px-4 py-2 border border-gray-200 rounded-md text-xs text-gray-600 hover:bg-gray-50 shadow-sm">剧本设定</button><button onclick="switchPipelineTab('outline')" class="px-5 py-2 bg-[#1E293B] text-white rounded-md text-xs hover:bg-gray-800 shadow-sm font-bold">下一步</button></div>
+                            </div>
+                            <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-8 min-h-[500px]">
+                                <input type="text" id="story-title" class="story-input-title" placeholder="请输入故事标题" value="雨夜的访客">
+                                <textarea id="story-body" class="story-input-body mt-4" placeholder="请输入故事梗概内容...">在一个风雨交加的夜晚...</textarea>
+                            </div>
+                        </div>
+                        <div id="stage-outline" class="hidden max-w-5xl mx-auto">
+                            <div class="flex justify-end mb-6 gap-3">
+                                <button onclick="addOutlineBlock()" class="px-4 py-2 border border-gray-200 rounded-md text-xs text-gray-600 bg-white hover:bg-gray-50 shadow-sm"><i data-lucide="plus" class="w-3.5 h-3.5 inline mr-1"></i> 添加大纲</button>
+                                <button onclick="outlineToScript()" class="px-4 py-2 bg-[#1E293B] text-white rounded-md text-xs font-bold shadow-sm hover:bg-gray-800">确认大纲，去写台本</button>
+                            </div>
+                            <div id="outline-list-container"></div>
+                        </div>
+                        <div id="stage-script" class="hidden max-w-[1100px] mx-auto"><div id="long-script-container"></div></div>
+                    </div>
+                </main>
+
+                <main id="view-final" class="flex-1 overflow-y-auto custom-scrollbar p-8 hidden bg-[#FAFAFA]">
+                    <div class="max-w-7xl mx-auto pb-20">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-[#FAFAFA]">
+                                <div><h2 class="text-[15px] font-bold text-gray-800">成稿预览</h2><p class="text-xs text-gray-400 mt-1">仅展示已确认或已生成的台本内容</p></div>
+                                <button onclick="alert('Excel 导出成功')" class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-xs font-bold shadow-sm transition-colors"><i data-lucide="download" class="w-3.5 h-3.5"></i> 导出 Excel</button>
+                            </div>
+                            <div class="overflow-x-auto p-6">
+                                <table class="table-view-container rounded-lg overflow-hidden" id="final-table">
+                                    <thead><tr><th class="w-48">台本ID</th><th class="w-24">角色</th><th>完整台本内容</th><th class="w-64">已选的prompt模版 (Prompt设定)</th></tr></thead>
+                                    <tbody id="final-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <div id="ai-assistant-panel" class="ai-assistant-panel">
+            <div class="ai-content custom-scrollbar">
+                <h3 class="font-bold text-[15px] text-gray-800 mb-6 flex items-center gap-2"><div class="w-6 h-6 rounded bg-indigo-50 flex items-center justify-center"><i data-lucide="bot" class="w-4 h-4 text-indigo-600"></i></div> AI 灵感助手</h3>
+                <div class="text-[13px] leading-relaxed text-gray-600 p-4 bg-[#FAFAFA] border border-gray-100 rounded-lg shadow-sm">你好！我是你的灵感助手，有什么可以帮你的吗？<br><br>你可以问我关于剧情走向、角色设定或者台词优化的建议。</div>
+            </div>
+            <div class="ai-footer">
+                <div class="relative">
+                    <input type="text" placeholder="输入你的问题..." class="w-full border border-gray-200 rounded-md py-2.5 pl-3 pr-10 text-[13px] outline-none focus:border-indigo-400 bg-white shadow-sm transition-colors">
+                    <button class="absolute right-1.5 top-1.5 bottom-1.5 px-2.5 bg-[#1E293B] text-white rounded hover:bg-gray-800 flex items-center justify-center transition-colors"><i data-lucide="send" class="w-3.5 h-3.5"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div id="modal-switch-confirm" class="modal-overlay" style="display:none;">
         <div class="modal-content text-center">
-            <div class="mx-auto w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center mb-5"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="alert-triangle" aria-hidden="true" class="lucide lucide-alert-triangle w-5 h-5 text-orange-500"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg></div>
+            <div class="mx-auto w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center mb-5"><i data-lucide="alert-triangle" class="w-5 h-5 text-orange-500"></i></div>
             <h3 class="text-[15px] font-bold text-gray-800 mb-2">切换模版确认</h3>
             <p class="text-[13px] text-gray-500 mb-6 leading-relaxed">切换后，当前创作内容将不会保持，<br>是否确认切换？</p>
             <div class="flex justify-center gap-3">
@@ -286,15 +353,16 @@
             </div>
         </div>
     </div>
+    
     <div id="dropdown-container" class="tag-dropdown"></div>
-    <div id="highlight-popover" class="highlight-popover" onmousedown="showRewriteModal(event)">AI 改写 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sparkles" aria-hidden="true" class="lucide lucide-sparkles w-3 h-3 inline"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg></div>
+    <div id="highlight-popover" class="highlight-popover" onmousedown="showRewriteModal(event)">AI 改写 <i data-lucide="sparkles" class="w-3 h-3 inline"></i></div>
     <div id="rewrite-modal" class="rewrite-modal"><textarea id="rewrite-input" class="rewrite-input" rows="2" placeholder="输入改写指令..."></textarea><div class="flex justify-end gap-2"><button onclick="closeRewriteModal()" class="px-3 py-1.5 text-xs text-gray-500 border border-gray-200 rounded hover:bg-gray-50 transition-colors">取消</button><button onclick="confirmRewrite()" class="px-3 py-1.5 text-xs text-white bg-primary rounded hover:bg-primary-hover transition-colors">确认</button></div></div>
     
     <div id="modal-settings" class="modal-overlay" style="display:none;">
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-[15px] font-bold text-gray-800">台本生成设定</h3>
-                <button onclick="closeSettings()" class="text-gray-400 hover:text-gray-600 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-4 h-4"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+                <button onclick="closeSettings()" class="text-gray-400 hover:text-gray-600 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="space-y-5">
                 <div>
@@ -315,7 +383,7 @@
         <div class="modal-content" style="width: 420px;">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-[15px] font-bold text-gray-800">剧本设定</h3>
-                <button onclick="closeDramaSettings()" class="text-gray-400 hover:text-gray-600 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x w-4 h-4"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></button>
+                <button onclick="closeDramaSettings()" class="text-gray-400 hover:text-gray-600 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
             </div>
             <div class="space-y-5">
                 <div class="grid grid-cols-2 gap-4">
@@ -366,6 +434,16 @@
             'single_static': '单人语音', 'multi_static': '多人语音', 'trigger': '触发响应',
             'long_script': '长剧本', 'custom': '自定义'
         };
+
+        // --- View Switching (Home <-> Editor) ---
+        function goToEditor() {
+            document.getElementById('page-home').classList.add('hidden');
+            document.getElementById('page-editor').classList.remove('hidden');
+        }
+        function goHome() {
+            document.getElementById('page-editor').classList.add('hidden');
+            document.getElementById('page-home').classList.remove('hidden');
+        }
         
         function showToast(message) {
             let toast = document.getElementById('toast');
@@ -465,10 +543,9 @@
                     content = prevText;
                 }
             }
-            // 完美还原UI设计稿中删除按钮位置（标题栏右侧）与卡片头部结构
             const deleteBtn = isFirst ? `` : `<button onclick="deleteBlock('${id}')" class="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-md text-[13px] text-gray-500 bg-white hover:text-red-500 hover:border-red-200 transition-colors shadow-sm ml-auto"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 删除</button>`;
             
-            // 默认显示的占位框
+            // 默认显示的占位框（居中对齐 text-center）
             const defaultOutputHTML = `
             <div class="manual-input-wrapper" id="manual-wrapper-${id}">
                 <div id="output-${id}" class="script-editor-box text-center" contenteditable="true" placeholder="在此输入台本内容，或点击右上角 AI 图标生成..."></div>
@@ -518,7 +595,6 @@
             const btn = document.querySelector(`#${id} button[onclick^="generateBlockAI"]`);
             const promptArea = document.querySelector(`#${id} .prompt-input`);
             
-            // 获取当前手动输入框的内容（如果有）
             const manualBox = document.getElementById(`output-${id}`);
             let currentContent = "";
             if (manualBox && manualBox.innerText.trim() !== "" && !manualBox.innerText.includes("AI生成中...")) {
@@ -531,7 +607,6 @@
             
             btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-white"></i>`; btn.disabled = true;
             
-            // 临时将输入框变成等待状态
             if(manualBox) {
                 manualBox.innerText = "AI 正在努力生成中...";
             }
@@ -539,13 +614,9 @@
             setTimeout(() => {
                 btn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 text-cyan-300"></i>`; btn.disabled = false;
                 const uid = Date.now();
-                // 一比一还原AI生成框样式（绿色外框包含"台本："和3个方案）
                 const variantsHtml = `<div class="variant-wrapper" id="variants-${uid}"><div class="text-[13px] text-gray-400 mb-4 ml-1">AI 生成台本方案：</div><div class="variant-grid">${createVariant(uid, 1, id, totalLines)}${createVariant(uid, 2, id, totalLines)}${createVariant(uid, 3, id, totalLines)}</div></div>`;
                 
-                // 替换掉手动输入框，展示 AI 生成方案
                 outArea.innerHTML = variantsHtml;
-                
-                // 把之前的 currentContent 存起来，方便取消时恢复
                 outArea.dataset.prevContent = currentContent;
 
             }, 800);
@@ -561,13 +632,11 @@
         }
         
         function confirmVariant(uid, idx, blockId) {
-            // 解析出纯文本，去掉HTML标签以便放入contenteditable区
             const htmlContent = document.querySelector(`#var-${uid}-${idx} .variant-content`).innerHTML;
             const textContent = htmlContent.replace(/<span.*?>/g, '').replace(/<\/span>/g, '').replace(/<br>/g, '\n');
-            
             const outArea = document.getElementById(`output-area-${blockId}`);
             
-            // 恢复手动输入框的结构，并将内容填入，移除text-center类以实现居中或左对齐（根据需求，已改为默认剧中）
+            // 恢复为居中对齐的文本框，符合“剧中显示”
             const manualOutputHTML = `
             <div class="manual-input-wrapper" id="manual-wrapper-${blockId}">
                 <div id="output-${blockId}" class="script-editor-box text-center" contenteditable="true" placeholder="在此输入台本内容，或点击右上角 AI 图标生成...">${textContent}</div>
@@ -619,14 +688,12 @@
                 const title = w.querySelector('input').value;
                 const tags = Array.from(w.querySelectorAll('.prompt-tag')).map(t => `<span class="tag-badge">${t.innerText.replace(' ∨', '')}</span>`).join('');
                 
-                // 适配新的结构获取内容
                 let contentBox = w.querySelector('.script-editor-box');
-                if(!contentBox) return; // 如果处于AI生成选项界面，还没有选择，则跳过
+                if(!contentBox) return;
 
                 let content = contentBox.innerText;
                 content = content.replace(/\n\s*\n/g, '\n'); 
                 
-                // 去除可能存在的占位文本（如果用户什么都没输入也没生成）
                 if (content.trim() === "" || content.includes("AI 正在努力生成中...")) return;
 
                 if(content.trim()) {
@@ -745,5 +812,5 @@
             lucide.createIcons();
         }
     </script>
-
-</body></html>
+</body>
+</html>
