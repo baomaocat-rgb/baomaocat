@@ -645,7 +645,7 @@
             document.querySelectorAll(`#${activeContainer} button[onclick^="generateBlockAI"]`).forEach((btn,i) => setTimeout(()=>btn.click(), i*300));
         }
         
-        // --- 视图模式与最终成稿表 ---
+        // --- 视图模式与最终成稿表 (修复了标签未同步显示的问题) ---
         function switchViewMode(mode) {
              const vE = document.getElementById('view-editor'), vF = document.getElementById('view-final');
              const templateSelector = document.getElementById('global-template-selector');
@@ -677,7 +677,9 @@
             const active = currentMode === 'long_script' ? 'long-script-container' : 'flow-canvas';
             document.querySelectorAll(`#${active} [id$="-wrapper"]`).forEach(w => {
                 const title = w.querySelector('input').value;
-                const tags = Array.from(w.querySelectorAll('.prompt-tag')).map(t => `<span class="tag-badge">${t.innerText.replace(' ∨', '')}</span>`).join('');
+                
+                // 完美修复：动态提取 Prompt 设定中的所有标签，并应用 Shadcn 的美化样式
+                const tags = Array.from(w.querySelectorAll('.prompt-tag')).map(t => `<span class="inline-block bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded text-[11px] font-medium mr-1 mb-1">${t.dataset.type || t.innerText.replace(/\\s*∨$/, '').trim()}</span>`).join('');
                 
                 let contentBox = w.querySelector('.script-editor-box');
                 if(!contentBox) return;
@@ -706,7 +708,8 @@
                         dialogueRows.forEach((row, index) => {
                             const tr = document.createElement('tr');
                             if (index === 0) {
-                                tr.innerHTML = `<td class="text-xs font-bold text-slate-700 bg-slate-50" rowspan="${dialogueRows.length}" style="vertical-align: top;">${title}</td><td class="text-xs text-slate-500">${row.role}</td><td class="text-[13px] text-slate-800">${row.text}</td><td class="text-xs" rowspan="${dialogueRows.length}" style="vertical-align: top;"><span class="text-slate-400">已设定标签</span></td>`;
+                                // 完美修复：已将原本写死的 `<span>已设定标签</span>` 替换为解析出的实际标签 `$tags`
+                                tr.innerHTML = `<td class="text-xs font-bold text-slate-700 bg-slate-50" rowspan="${dialogueRows.length}" style="vertical-align: top;">${title}</td><td class="text-xs text-slate-500">${row.role}</td><td class="text-[13px] text-slate-800">${row.text}</td><td class="text-xs" rowspan="${dialogueRows.length}" style="vertical-align: top;">${tags || '<span class="text-slate-400">-</span>'}</td>`;
                             } else {
                                 tr.innerHTML = `<td class="text-xs text-slate-500">${row.role}</td><td class="text-[13px] text-slate-800">${row.text}</td>`;
                             }
