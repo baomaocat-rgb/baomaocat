@@ -252,7 +252,6 @@
                         </div>
                     </div>
                     <div class="ml-auto flex gap-3" id="header-actions">
-                        <button onclick="openSettings()" id="btn-settings-global" class="btn-base btn-outline px-3 h-8 gap-1.5"><i data-lucide="settings" class="w-3.5 h-3.5"></i> 台本设定</button>
                         <button onclick="addNewBlock()" class="btn-base btn-outline px-3 h-8 gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 添加段落</button>
                     </div>
                 </div>
@@ -379,7 +378,6 @@
                         </div>
                         <div id="stage-outline" class="hidden max-w-4xl mx-auto fade-in">
                             <div class="flex justify-end mb-6 gap-3">
-                                 <button onclick="addOutlineBlock()" class="btn-base btn-outline px-3 h-8 gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5 inline"></i> 添加大纲</button>
                                  <button onclick="outlineToScript()" class="btn-base btn-primary px-4 h-8">确认大纲，去写台本</button>
                             </div>
                             <div id="outline-list-container" class="space-y-5"></div>
@@ -443,27 +441,10 @@
         </div>
     </div>
     
-    <div id="modal-settings" class="modal-overlay">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-[15px] font-bold text-slate-900">台本生成设定</h3>
-                <button onclick="closeSettings()" class="text-slate-400 hover:text-slate-600 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2">每轮对话句数</label>
-                    <input type="number" id="setting-lines" value="4" class="flex h-9 w-full rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:border-emerald-500 focus-visible:ring-1 focus-visible:ring-emerald-500 text-slate-800">
-                </div>
-            </div>
-            <div class="mt-8 flex justify-end gap-3">
-                <button onclick="closeSettings()" class="btn-base btn-outline px-4 h-9">取消</button>
-                <button onclick="confirmSettings()" class="btn-base btn-dark px-4 h-9 gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5"></i> 确认设定</button>
-            </div>
-        </div>
-    </div>
-    
     <script>
         lucide.createIcons();
+        window.initialPrompts = {}; // NEW: 存储初始设定的Prompt以便恢复
+
         let blockCount = 1; let outlineBlockCount = 0; let currentMode = 'normal';
         let selectedRange = null;
         let pendingTemplateValue = null; 
@@ -471,7 +452,7 @@
             '城市': ['XinQi', 'ChongXiao'], '舞台区域': ['东亚市中心', '金融商务中心'],
             '角色A': ['NPC_01', 'NPC_02'], '角色B': ['NPC_03', 'NPC_04'],
             '情绪色彩': ['随机', '平和', '欢快'], '对话话题': ['随机', '工作'],
-            '对话风格': ['随机', '轻松幽默'], '几组对话': ['3组', '5组', '10组'],
+            '对话风格': ['随机', '轻松幽默'], '几句对话': ['3句', '5句', '10句'],
             '角色': ['塔菲', 'TIM'], '场景': ['花园', '学校']
         };
         const sceneMap = {
@@ -551,7 +532,6 @@
                 document.getElementById('sidebar-title').innerHTML = `<i data-lucide="book-open" class="w-4 h-4 text-slate-400"></i> 台本列表`;
                 if(globalAiBtn) globalAiBtn.style.display = 'flex';
                 headerActions.innerHTML = `
-                    <button onclick="openSettings()" id="btn-settings-global" class="btn-base btn-outline px-3 h-8 gap-1.5"><i data-lucide="settings" class="w-3.5 h-3.5"></i> 台本设定</button>
                     <button onclick="addNewBlock()" class="btn-base btn-outline px-3 h-8 gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 添加段落</button>
                 `;
                 addNewBlock(true);
@@ -579,9 +559,12 @@
                     content = prevText;
                 }
             }
+            
+            // 存储初始 HTML，用于恢复设定
+            window.initialPrompts[id] = content;
+
             const deleteBtn = isFirst ? `` : `<button onclick="deleteBlock('${id}')" class="btn-base px-3 h-7 bg-transparent hover:bg-red-50 text-slate-400 hover:text-red-500 gap-1 ml-auto text-xs"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 删除</button>`;
             
-            // 初始占位框样式 (符合 Shadcn)
             const defaultOutputHTML = `
             <div class="border border-emerald-400 rounded-lg p-5 bg-white mt-3 shadow-[0_0_0_4px_rgba(16,185,129,0.05)]">
                 <div id="output-${id}" class="script-editor-box text-center" contenteditable="true" placeholder="在此输入台本内容，或点击右上角 AI 图标生成..."></div>
@@ -602,7 +585,12 @@
                     </div>
                     <div class="bg-white p-5 pb-2">
                         <div class="text-[13px] font-bold text-slate-400 mb-2 ml-1">Prompt 设定：</div>
-                        <div class="prompt-input" contenteditable="true">${content}</div>
+                        <div class="relative">
+                            <div id="prompt-${id}" class="prompt-input" contenteditable="true" oninput="checkPromptEmpty('${id}')">${content}</div>
+                            <button id="restore-${id}" onclick="restorePrompt('${id}')" style="display: none;" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 btn-base bg-white border border-slate-200 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 shadow-sm px-4 h-8 gap-1.5 z-10">
+                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> 恢复原设定
+                            </button>
+                        </div>
                     </div>
                     <div class="p-5 pt-2 bg-white" id="output-area-${id}">
                         ${defaultOutputHTML}
@@ -615,7 +603,7 @@
         
         function getTemplateHTML(type) {
             const ct = (t) => `<span class="prompt-tag" data-type="${t}" contenteditable="false" onclick="showDropdown(event, '${t}', this)">${t} <span class="text-[10px] opacity-60 ml-0.5 pointer-events-none">∨</span></span>`;
-            const c=ct('城市'), st=ct('舞台区域'), rA=ct('角色A'), rB=ct('角色B'), em=ct('情绪色彩'), to=ct('对话话题'), sy=ct('对话风格'), gr=ct('几组对话'), r=ct('角色'), s=ct('场景');
+            const c=ct('城市'), st=ct('舞台区域'), rA=ct('角色A'), rB=ct('角色B'), em=ct('情绪色彩'), to=ct('对话话题'), sy=ct('对话风格'), gr=ct('几句对话'), r=ct('角色'), s=ct('场景');
             
             if(type === 'double_phone' || type === 'double_static' || type === 'multi_static') return `请生成一段在 ${c} 的 ${st} 的情节下，${rA} ${em} 和 ${rB} ${em} 聊 ${to} ${sy} <br> ${gr} 的台本`;
             if(type === 'single_random') return `请生成一段在 ${c} 的 ${st} 的情节下；${rA} 的随机台本`;
@@ -624,6 +612,28 @@
             if(type === 'long_script') return `<div class="text-slate-500 text-[13px] border-b border-slate-100 pb-2 mb-2" contenteditable="true">大纲内容：...</div><div><span class="template-block" contenteditable="false">请生成关于 ${r} 在 ${s} 的情节下 ${gr} 的台本</span>&nbsp;</div>`;
             if(type === 'custom') return ''; 
             return `在此输入自定义Prompt...`;
+        }
+
+        // --- NEW: 恢复原 Prompt 设定逻辑 ---
+        function checkPromptEmpty(id) {
+            const el = document.getElementById(`prompt-${id}`);
+            const btn = document.getElementById(`restore-${id}`);
+            if (!el || !btn) return;
+            if (el.innerText.trim() === '') {
+                btn.style.display = 'inline-flex';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        function restorePrompt(id) {
+            const el = document.getElementById(`prompt-${id}`);
+            const btn = document.getElementById(`restore-${id}`);
+            if (el && window.initialPrompts[id]) {
+                el.innerHTML = window.initialPrompts[id];
+                lucide.createIcons();
+            }
+            if (btn) btn.style.display = 'none';
         }
         
         // --- 核心业务：AI 生成与骨架屏 ---
@@ -638,8 +648,11 @@
                 currentContent = manualBox.innerText;
             }
 
-            let rounds = 0; if(promptArea) { const match = promptArea.innerText.match(/(\d+)组/); if(match) rounds = parseInt(match[1]); }
-            if(!rounds) rounds = parseInt(document.getElementById('setting-lines').value) || 3;
+            let rounds = 4; // 默认 4 句
+            if(promptArea) { 
+                const match = promptArea.innerText.match(/(\d+)句/); 
+                if(match) rounds = parseInt(match[1]); 
+            }
             const totalLines = rounds; 
             
             btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin text-white"></i>`; btn.disabled = true;
@@ -721,8 +734,7 @@
         function switchViewMode(mode) {
              const vE = document.getElementById('view-editor'), vF = document.getElementById('view-final');
              const templateSelector = document.getElementById('global-template-selector');
-             const settingsBtn = document.getElementById('btn-settings-global') || document.getElementById('btn-settings-long');
-             const addParagraphBtn = document.querySelector('#header-actions button[onclick="addNewBlock()"]');
+             const addParagraphBtn = document.querySelector('#header-actions button[onclick^="addNewBlock"]');
              
              if(mode==='editor'){ 
                  vE.classList.remove('hidden'); vF.classList.add('hidden'); 
@@ -730,7 +742,6 @@
                  document.getElementById('btn-mode-final').className="px-4 py-1.5 rounded-md transition-all duration-200 hover:text-slate-700"; 
                  
                  templateSelector.disabled = false; templateSelector.style.opacity = '1'; templateSelector.style.pointerEvents = 'auto';
-                 if(settingsBtn) { settingsBtn.disabled = false; settingsBtn.style.opacity = '1'; settingsBtn.style.pointerEvents = 'auto'; }
                  if(addParagraphBtn) { addParagraphBtn.disabled = false; addParagraphBtn.style.opacity = '1'; addParagraphBtn.style.pointerEvents = 'auto'; }
              } else { 
                  vE.classList.add('hidden'); vF.classList.remove('hidden'); 
@@ -739,7 +750,6 @@
                  generateFinalTable(); 
                  
                  templateSelector.disabled = true; templateSelector.style.opacity = '0.5'; templateSelector.style.pointerEvents = 'none';
-                 if(settingsBtn) { settingsBtn.disabled = true; settingsBtn.style.opacity = '0.5'; settingsBtn.style.pointerEvents = 'none'; }
                  if(addParagraphBtn) { addParagraphBtn.disabled = true; addParagraphBtn.style.opacity = '0.5'; addParagraphBtn.style.pointerEvents = 'none'; }
              }
         }
@@ -808,15 +818,12 @@
             }
             if(tab==='outline') { 
                 document.getElementById('sidebar-title').innerHTML=`<i data-lucide="book-open" class="w-4 h-4 text-slate-400"></i> 大纲列表`; 
-                headerActions.innerHTML = ''; 
+                headerActions.innerHTML = `<button onclick="addOutlineBlock()" class="btn-base btn-outline px-3 h-8 gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 添加大纲</button>`; 
                 if(globalAiBtn) globalAiBtn.style.display = 'flex'; 
             }
             if(tab==='script') {
                 document.getElementById('sidebar-title').innerHTML=`<i data-lucide="book-open" class="w-4 h-4 text-slate-400"></i> 长剧本列表`;
-                headerActions.innerHTML = `
-                    <button onclick="openSettings()" id="btn-settings-long" class="btn-base btn-outline px-3 h-8 gap-1.5"><i data-lucide="settings" class="w-3.5 h-3.5"></i> 台本设定</button>
-                    <button onclick="addNewBlock(false, 'long-script-container')" class="btn-base btn-outline px-3 h-8 gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 添加段落</button>
-                `;
+                headerActions.innerHTML = `<button onclick="addNewBlock(false, 'long-script-container')" class="btn-base btn-outline px-3 h-8 gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 添加段落</button>`;
                 if(document.getElementById('long-script-container').children.length === 0) addNewBlock(true, 'long-script-container', "第一幕：场景 - 角色 - 时间");
                 renderSidebar('long-script-container');
                 if(globalAiBtn) globalAiBtn.style.display = 'flex'; 
@@ -840,10 +847,6 @@
         // --- 交互组件与弹窗 ---
         function showDropdown(e,t,el){e.stopPropagation();const d=document.getElementById('dropdown-container');d.innerHTML='';(dataDict[t]||[]).forEach(x=>{const v=document.createElement('div');v.className='px-3 py-2 text-[13px] cursor-pointer text-slate-600 rounded-md hover:bg-emerald-50 hover:text-emerald-600 transition-colors font-medium';v.innerText=x;v.onclick=(ev)=>{ev.stopPropagation();el.innerHTML=`${x} <span class="text-[10px] opacity-60 ml-0.5 pointer-events-none">∨</span>`;d.style.display='none';};d.appendChild(v);});const r=el.getBoundingClientRect();d.style.left=r.left+'px';d.style.top=(r.bottom+scrollY+5)+'px';d.style.display='block';}
         function handleGlobalClick(){document.getElementById('dropdown-container').style.display='none';}
-        
-        function openSettings() { document.getElementById('modal-settings').style.display='flex'; }
-        function closeSettings() { document.getElementById('modal-settings').style.display='none'; }
-        function confirmSettings() { const l=document.getElementById('setting-lines').value; closeSettings(); }
         
         // --- NEW: 折叠设定面板与标签选中逻辑 ---
         let isDramaSettingsExpanded = true;
@@ -903,7 +906,12 @@
                 const tpl = getTemplateHTML('long_script').replace('大纲内容：...', `大纲内容：${content || '未填写'}`);
                 addNewBlock(false, 'long-script-container', title);
                 const lastBlock = container.lastElementChild;
-                if(lastBlock) lastBlock.querySelector('.prompt-input').innerHTML = tpl;
+                if(lastBlock) {
+                    lastBlock.querySelector('.prompt-input').innerHTML = tpl;
+                    // 更新 initialPrompts 以保证长剧本的内容也能一键恢复
+                    const blockId = lastBlock.id.replace('-wrapper', '');
+                    window.initialPrompts[blockId] = tpl;
+                }
             });
             switchPipelineTab('script');
         }
