@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 创作平台 - 现代化 UI 版</title>
+    <title>AI 创作平台 - 现代化 UI 版 (剧本设定折叠版)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -23,6 +23,10 @@
         }
     </script>
     <style>
+        /* 隐藏滑动条但保留滚动功能 */
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -38,7 +42,7 @@
         .prompt-input { background-color: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 16px; font-size: 13px; line-height: 2.2; color: #475569; outline: none; min-height: 80px; transition: border-color 0.2s; }
         .prompt-input:focus { border-color: #10b981; background-color: #ffffff; box-shadow: 0 0 0 1px #10b981; }
         
-        /* 标签 (Shadcn Style) */
+        /* 标签 */
         .prompt-tag { display: inline-flex; align-items: center; background-color: #ecfdf5; color: #047857; padding: 2px 8px; border-radius: 6px; border: 1px solid #a7f3d0; font-size: 13px; cursor: pointer; margin: 0 4px; vertical-align: middle; transition: all 0.2s; }
         .prompt-tag:hover { border-color: #10b981; }
         .template-block { user-select: none; display: inline; }
@@ -94,6 +98,16 @@
         .btn-outline:hover { background: #f8fafc; border-color: #6ee7b7; color: #10b981; transform: scale(1.05); }
         .btn-danger { background: #ef4444; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .btn-danger:hover { background: #dc2626; transform: scale(1.05); }
+
+        /* AI 开关样式逻辑 */
+        .ai-switch.active { background-color: #ecfdf5; border-color: #a7f3d0; color: #047857; }
+        .ai-switch:not(.active) { background-color: #f8fafc; border-color: #e2e8f0; color: #64748b; }
+        .ai-switch.active .switch-track { background-color: #34d399; }
+        .ai-switch:not(.active) .switch-track { background-color: #cbd5e1; }
+        .ai-switch.active .switch-thumb { transform: translateX(16px); }
+        .ai-switch:not(.active) .switch-thumb { transform: translateX(2px); }
+        .ai-switch.active .icon-active { color: #10b981; }
+        .ai-switch:not(.active) .icon-active { color: #94a3b8; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-600 h-screen w-full flex overflow-hidden antialiased selection:bg-emerald-100" onclick="handleGlobalClick(event)" onmouseup="handleTextSelection(event)">
@@ -257,14 +271,110 @@
                         <div id="stage-story" class="max-w-4xl mx-auto fade-in">
                              <div class="flex justify-between items-end mb-6">
                                 <h2 class="text-2xl font-bold text-slate-900">hey，今天想写什么故事？</h2>
-                                <div class="flex gap-3">
-                                    <button onclick="openDramaSettings()" class="btn-base btn-outline px-4 h-8">剧本设定</button>
-                                    <button onclick="switchPipelineTab('outline')" class="btn-base btn-primary px-4 h-8">下一步</button>
+                                <button onclick="switchPipelineTab('outline')" class="btn-base btn-primary px-5 h-9 font-bold">下一步</button>
+                            </div>
+
+                            <div class="mb-6 fade-in">
+                                <div class="flex justify-between items-center mb-3 px-1">
+                                    <h3 class="text-[15px] font-bold text-slate-800">剧本设定</h3>
+                                    <button id="btn-toggle-drama" onclick="toggleDramaSettings()" class="btn-base btn-outline px-3 py-1.5 text-[13px] gap-1.5 bg-white border-slate-200 hover:border-emerald-300">
+                                        <span id="text-toggle-drama">展开</span> <i id="icon-toggle-drama" data-lucide="chevron-down" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+
+                                <div id="drama-settings-collapsed" class="bg-white border border-slate-200 rounded-xl px-6 py-4 shadow-sm flex items-center">
+                                    <div class="w-full relative" style="-webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent 100%); mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent 100%);">
+                                        <div class="flex items-center text-[13px] text-slate-500 overflow-x-auto no-scrollbar whitespace-nowrap w-full pr-8">
+                                            <span class="text-slate-700 font-medium">剧本类型</span> <span class="mx-2.5 text-slate-300">|</span> <span>未设置</span>
+                                            <span class="mx-5 text-slate-200">/</span>
+                                            <span class="text-slate-700 font-medium">剧本时长</span> <span class="mx-2.5 text-slate-300">|</span> <span>未设置</span>
+                                            <span class="mx-5 text-slate-200">/</span>
+                                            <span class="text-slate-700 font-medium">剧本主角</span> <span class="mx-2.5 text-slate-300">|</span> <span>未设置</span>
+                                            <span class="mx-5 text-slate-200">/</span>
+                                            <span class="text-slate-700 font-medium">剧本配角</span> <span class="mx-2.5 text-slate-300">|</span> <span>未设置</span>
+                                            <span class="mx-5 text-slate-200">/</span>
+                                            <span class="text-slate-700 font-medium">对立配角</span> <span class="mx-2.5 text-slate-300">|</span> <span>未设置</span>
+                                            <span class="mx-5 text-slate-200">/</span>
+                                            <span class="text-slate-700 font-medium">关联词条</span> <span class="mx-2.5 text-slate-300">|</span> <span>未设置</span>
+                                            <span class="mx-5 text-slate-200">/</span>
+                                            <span class="text-slate-700 font-medium">前后序作品</span> <span class="mx-2.5 text-slate-300">|</span> <span>未设置</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="drama-settings-expanded" class="bg-white border border-slate-200 rounded-xl p-6 shadow-sm hidden">
+                                    <div class="space-y-5">
+                                        <div class="flex items-start gap-4">
+                                            <div class="w-[84px] text-[13px] font-bold text-slate-700 mt-2 shrink-0">剧本类型</div>
+                                            <div class="flex flex-wrap gap-2">
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">动作</button>
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">戏剧</button>
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">剧情</button>
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">科幻</button>
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">恐怖</button>
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">爱情</button>
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">犯罪</button>
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">冒险</button>
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">西部</button>
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">悬疑/惊悚</button>
+                                                <button class="btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-500 font-medium hover:bg-slate-50 text-[13px] gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 自定义</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start gap-4">
+                                            <div class="w-[84px] text-[13px] font-bold text-slate-700 mt-2 shrink-0">剧本时长</div>
+                                            <div class="flex flex-wrap gap-2">
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">5 分钟</button>
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">10 分钟</button>
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">15 分钟</button>
+                                                <button class="drama-tag btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-600 font-medium hover:bg-slate-50 text-[13px]">不限时长</button>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-[84px] text-[13px] font-bold text-slate-700 shrink-0">剧本主角</div>
+                                            <button class="btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-500 font-medium hover:bg-slate-50 text-[13px] gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 从词条库中导入</button>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-[84px] text-[13px] font-bold text-slate-700 shrink-0">剧本配角</div>
+                                            <button class="btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-500 font-medium hover:bg-slate-50 text-[13px] gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 从词条库中导入</button>
+                                            <div class="ai-switch active flex items-center gap-1.5 border rounded-full px-3 py-1.5 cursor-pointer ml-1 transition-colors" onclick="this.classList.toggle('active')">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5 icon-active"></i>
+                                                <span class="text-[13px] font-bold">AI 随机生成</span>
+                                                <i data-lucide="info" class="w-3.5 h-3.5 opacity-60"></i>
+                                                <div class="switch-track w-8 h-4 rounded-full relative ml-1 flex items-center transition-colors">
+                                                    <div class="switch-thumb w-3 h-3 bg-white rounded-full absolute transition-transform shadow-sm"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-[84px] text-[13px] font-bold text-slate-700 shrink-0">对立配角</div>
+                                            <button class="btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-500 font-medium hover:bg-slate-50 text-[13px] gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 从词条库中导入</button>
+                                            <div class="ai-switch flex items-center gap-1.5 border rounded-full px-3 py-1.5 cursor-pointer ml-1 transition-colors" onclick="this.classList.toggle('active')">
+                                                <i data-lucide="sparkles" class="w-3.5 h-3.5 icon-active"></i>
+                                                <span class="text-[13px] font-bold">AI 随机生成</span>
+                                                <i data-lucide="info" class="w-3.5 h-3.5 opacity-60"></i>
+                                                <div class="switch-track w-8 h-4 rounded-full relative ml-1 flex items-center transition-colors">
+                                                    <div class="switch-thumb w-3 h-3 bg-white rounded-full absolute transition-transform shadow-sm"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-[84px] text-[13px] font-bold text-slate-700 shrink-0">关联词条</div>
+                                            <button class="btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-500 font-medium hover:bg-slate-50 text-[13px] gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 从词条库中导入</button>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-[84px] text-[13px] font-bold text-slate-700 shrink-0">前后序作品</div>
+                                            <div class="flex gap-2">
+                                                <button class="btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-500 font-medium hover:bg-slate-50 text-[13px] gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 导入前序作品</button>
+                                                <button class="btn-base px-4 py-1.5 bg-white border border-slate-200 text-slate-500 font-medium hover:bg-slate-50 text-[13px] gap-1.5"><i data-lucide="plus" class="w-3.5 h-3.5"></i> 导入后序作品</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-8 min-h-[500px]">
+
+                            <div class="bg-white border border-slate-200 rounded-xl shadow-sm p-8 min-h-[400px]">
                                 <input type="text" id="story-title" class="text-xl font-bold text-slate-900 border-b border-slate-100 w-full pb-3 mb-4 outline-none focus:border-emerald-500 transition-colors" placeholder="请输入故事标题" value="雨夜的访客">
-                                <textarea id="story-body" class="w-full min-h-[400px] outline-none leading-[1.8] text-slate-600 text-[14px] resize-none mt-2" placeholder="请输入故事梗概内容...">在一个风雨交加的夜晚...</textarea>
+                                <textarea id="story-body" class="w-full min-h-[300px] outline-none leading-[1.8] text-slate-600 text-[14px] resize-none mt-2" placeholder="请输入故事梗概内容...">在一个风雨交加的夜晚...</textarea>
                             </div>
                         </div>
                         <div id="stage-outline" class="hidden max-w-4xl mx-auto fade-in">
@@ -348,44 +458,6 @@
             <div class="mt-8 flex justify-end gap-3">
                 <button onclick="closeSettings()" class="btn-base btn-outline px-4 h-9">取消</button>
                 <button onclick="confirmSettings()" class="btn-base btn-dark px-4 h-9 gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5"></i> 确认设定</button>
-            </div>
-        </div>
-    </div>
-    
-    <div id="modal-drama-settings" class="modal-overlay">
-        <div class="modal-content" style="width: 400px;">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-[15px] font-bold text-slate-900">剧本全局设定</h3>
-                <button onclick="closeDramaSettings()" class="text-slate-400 hover:text-slate-600 transition-colors"><i data-lucide="x" class="w-4 h-4"></i></button>
-            </div>
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-2">剧本类型</label>
-                        <select class="flex h-9 w-full rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm outline-none focus:border-emerald-500">
-                            <option>悬疑</option>
-                            <option>喜剧</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 mb-2">剧本时长</label>
-                        <select class="flex h-9 w-full rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm outline-none focus:border-emerald-500">
-                            <option>10分钟</option>
-                            <option>30分钟</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2">剧本主角</label>
-                    <input type="text" class="flex h-9 w-full rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm outline-none focus:border-emerald-500" value="塔菲">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 mb-2">对立角色</label>
-                    <input type="text" class="flex h-9 w-full rounded-lg border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm outline-none focus:border-emerald-500" value="神秘人">
-                </div>
-            </div>
-            <div class="mt-8 flex justify-end gap-3">
-                <button onclick="closeDramaSettings()" class="btn-base btn-dark px-4 h-9">保存全局设定</button>
             </div>
         </div>
     </div>
@@ -607,7 +679,7 @@
                 outArea.innerHTML = variantsHtml;
                 outArea.dataset.prevContent = currentContent;
                 lucide.createIcons();
-            }, 1500); // 增加延时展示骨架屏
+            }, 1500);
         }
         
         function createVariant(uid, idx, blockId, totalLines) {
@@ -645,7 +717,7 @@
             document.querySelectorAll(`#${activeContainer} button[onclick^="generateBlockAI"]`).forEach((btn,i) => setTimeout(()=>btn.click(), i*300));
         }
         
-        // --- 视图模式与最终成稿表 (修复了标签未同步显示的问题) ---
+        // --- 视图模式与最终成稿表 ---
         function switchViewMode(mode) {
              const vE = document.getElementById('view-editor'), vF = document.getElementById('view-final');
              const templateSelector = document.getElementById('global-template-selector');
@@ -677,8 +749,6 @@
             const active = currentMode === 'long_script' ? 'long-script-container' : 'flow-canvas';
             document.querySelectorAll(`#${active} [id$="-wrapper"]`).forEach(w => {
                 const title = w.querySelector('input').value;
-                
-                // 完美修复：动态提取 Prompt 设定中的所有标签，并应用 Shadcn 的美化样式
                 const tags = Array.from(w.querySelectorAll('.prompt-tag')).map(t => `<span class="inline-block bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded text-[11px] font-medium mr-1 mb-1">${t.dataset.type || t.innerText.replace(/\\s*∨$/, '').trim()}</span>`).join('');
                 
                 let contentBox = w.querySelector('.script-editor-box');
@@ -708,7 +778,6 @@
                         dialogueRows.forEach((row, index) => {
                             const tr = document.createElement('tr');
                             if (index === 0) {
-                                // 完美修复：已将原本写死的 `<span>已设定标签</span>` 替换为解析出的实际标签 `$tags`
                                 tr.innerHTML = `<td class="text-xs font-bold text-slate-700 bg-slate-50" rowspan="${dialogueRows.length}" style="vertical-align: top;">${title}</td><td class="text-xs text-slate-500">${row.role}</td><td class="text-[13px] text-slate-800">${row.text}</td><td class="text-xs" rowspan="${dialogueRows.length}" style="vertical-align: top;">${tags || '<span class="text-slate-400">-</span>'}</td>`;
                             } else {
                                 tr.innerHTML = `<td class="text-xs text-slate-500">${row.role}</td><td class="text-[13px] text-slate-800">${row.text}</td>`;
@@ -775,8 +844,42 @@
         function openSettings() { document.getElementById('modal-settings').style.display='flex'; }
         function closeSettings() { document.getElementById('modal-settings').style.display='none'; }
         function confirmSettings() { const l=document.getElementById('setting-lines').value; closeSettings(); }
-        function openDramaSettings() { document.getElementById('modal-drama-settings').style.display='flex'; }
-        function closeDramaSettings() { document.getElementById('modal-drama-settings').style.display='none'; }
+        
+        // --- NEW: 折叠设定面板与标签选中逻辑 ---
+        let isDramaSettingsExpanded = true;
+        function toggleDramaSettings() {
+            isDramaSettingsExpanded = !isDramaSettingsExpanded;
+            const expanded = document.getElementById('drama-settings-expanded');
+            const collapsed = document.getElementById('drama-settings-collapsed');
+            const text = document.getElementById('text-toggle-drama');
+            const icon = document.getElementById('icon-toggle-drama');
+
+            if (isDramaSettingsExpanded) {
+                expanded.classList.remove('hidden');
+                collapsed.classList.add('hidden');
+                text.innerText = '收起';
+                icon.setAttribute('data-lucide', 'chevron-up');
+            } else {
+                expanded.classList.add('hidden');
+                collapsed.classList.remove('hidden');
+                text.innerText = '展开';
+                icon.setAttribute('data-lucide', 'chevron-down');
+            }
+            lucide.createIcons();
+        }
+
+        // 标签选中监听
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('drama-tag')) {
+                const siblings = e.target.parentElement.querySelectorAll('.drama-tag');
+                siblings.forEach(s => {
+                    s.classList.remove('bg-emerald-50', 'border-emerald-300', 'text-emerald-700', 'font-bold');
+                    s.classList.add('bg-white', 'border-slate-200', 'text-slate-600', 'font-medium');
+                });
+                e.target.classList.remove('bg-white', 'border-slate-200', 'text-slate-600', 'font-medium');
+                e.target.classList.add('bg-emerald-50', 'border-emerald-300', 'text-emerald-700', 'font-bold');
+            }
+        });
         
         // AI 改写划词
         function handleTextSelection(e) { const sel = window.getSelection(); const pop = document.getElementById('highlight-popover'); if (sel.toString().trim().length > 0 && sel.anchorNode.parentElement.closest('.script-editor-box')) { selectedRange = sel.getRangeAt(0); const r = selectedRange.getBoundingClientRect(); pop.style.display = 'flex'; pop.style.top = `${window.scrollY + r.top - 40}px`; pop.style.left = `${window.scrollX + r.left + (r.width / 2) - 30}px`; } else { pop.style.display = 'none'; } }
